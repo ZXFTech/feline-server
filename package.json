@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon ./app.ts",
+    "dev": "tsc && cross-env NODE_ENV=development nodemon ./app.ts",
     "build": "tsc && cross-env NODE_ENV=production node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,10 +20,14 @@
   },
   "homepage": "https://github.com/ZXFTech/feline-server#readme",
   "dependencies": {
-    "koa": "^2.13.4"
+    "koa": "^2.13.4",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^12.0.0"
   },
   "devDependencies": {
     "@types/koa": "^2.13.5",
+    "@types/koa-bodyparser": "^4.3.8",
+    "@types/koa-router": "^7.4.4",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "cross-env": "^7.0.3",
