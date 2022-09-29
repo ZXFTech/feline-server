@@ -1,9 +1,12 @@
 import Koa from "koa";
 import http from "http";
 
-import koaBodyParser from "koa-bodyparser";
+import path from "path";
 
-import test from "../api/v1/test";
+import koaBodyParser from "koa-bodyparser";
+import Router from "koa-router";
+
+import { getAllFilesExport } from "../common/utils";
 
 class Init {
   public static app: Koa<Koa.DefaultState, Koa.DefaultContext>;
@@ -23,7 +26,10 @@ class Init {
   }
 
   static async initLoadRouters() {
-    Init.app.use(test.routes());
+    const dirPath = path.join(`${process.cwd()}/src/api`);
+    getAllFilesExport(dirPath, (file: Router) => {
+      Init.app.use(file.routes());
+    });
   }
 }
 
