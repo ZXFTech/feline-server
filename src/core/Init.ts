@@ -6,6 +6,8 @@ import path from "path";
 import koaBodyParser from "koa-bodyparser";
 import Router from "koa-router";
 
+import { errorCatch } from "../middleware/errorCatch";
+
 import { getAllFilesExport } from "../common/utils";
 
 class Init {
@@ -17,6 +19,7 @@ class Init {
   ) {
     Init.app = app;
     Init.server = server;
+    Init.initErrorCatch();
     Init.loadBodyParser();
     Init.initLoadRouters();
   }
@@ -30,6 +33,10 @@ class Init {
     getAllFilesExport(dirPath, (file: Router) => {
       Init.app.use(file.routes());
     });
+  }
+
+  static async initErrorCatch() {
+    Init.app.use(errorCatch);
   }
 }
 
