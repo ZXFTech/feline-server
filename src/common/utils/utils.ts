@@ -66,5 +66,5 @@ export function lineToHumpObject(obj: { [key: string]: any }) {
   }
   return {
     ...element,
-  };
+  }; 
 }

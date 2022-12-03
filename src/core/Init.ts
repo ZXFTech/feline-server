@@ -8,7 +8,7 @@ import Router from "koa-router";
 
 import { errorCatch } from "../middleware/errorCatch";
 
-import { getAllFilesExport } from "../common/utils";
+import { getAllFilesExport } from "../common/utils/utils";
 
 class Init {
   public static app: Koa<Koa.DefaultState, Koa.DefaultContext>;
@@ -19,25 +19,27 @@ class Init {
   ) {
     Init.app = app;
     Init.server = server;
-    Init.initErrorCatch();
+    // Init.initErrorCatch();
     Init.loadBodyParser();
-    Init.initLoadRouters();
+    // Init.initLoadRouters();
   }
 
   public static loadBodyParser() {
     Init.app.use(koaBodyParser());
   }
 
-  static async initLoadRouters() {
-    const dirPath = path.join(`${process.cwd()}/src/api`);
-    getAllFilesExport(dirPath, (file: Router) => {
-      Init.app.use(file.routes());
-    });
-  }
+  // 自动添加路由方法 -- 先不用
+  // static async initLoadRouters() {
+  //   const dirPath = path.join(`${process.cwd()}/src/api`);
+  //   getAllFilesExport(dirPath, (file: Router) => {
+  //     Init.app.use(file.routes());
+  //   });
+  // }
 
-  static async initErrorCatch() {
-    Init.app.use(errorCatch);
-  }
+  // 暂时先不加
+  // static async initErrorCatch() {
+  //   Init.app.use(errorCatch);
+  // }
 }
 
 export default Init.initCore;
