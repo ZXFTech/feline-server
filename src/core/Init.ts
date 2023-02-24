@@ -6,9 +6,16 @@ import path from "path";
 import koaBodyParser from "koa-bodyparser";
 import Router from "koa-router";
 
+import blogRouter from "../api/v1/blog";
+import scoreRouter from "../api/v1/scoreRace";
+
+import { crossOrigin } from "../middleware/netConfig";
+
 import { errorCatch } from "../middleware/errorCatch";
 
 import { getAllFilesExport } from "../common/utils/utils";
+
+const router = new Router();
 
 class Init {
   public static app: Koa<Koa.DefaultState, Koa.DefaultContext>;
@@ -22,10 +29,19 @@ class Init {
     // Init.initErrorCatch();
     Init.loadBodyParser();
     // Init.initLoadRouters();
+    Init.loadRouters();
   }
 
   public static loadBodyParser() {
     Init.app.use(koaBodyParser());
+  }
+
+  public static loadRouters() {
+    Init.app.use(crossOrigin);
+    router.use(blogRouter.routes());
+    router.use(scoreRouter.routes());
+    Init.app.use(router.routes());
+    Init.app.use(router.allowedMethods());
   }
 
   // 自动添加路由方法 -- 先不用
