@@ -14,7 +14,7 @@ export default class Config {
   public static readonly DEFAULT_DATE_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
   public static readonly MYSQL = {
-    DB_NAME: "blog",
+    DB_NAME: "feline",
     HOST: "127.0.0.1",
     PORT: 3306,
     USER_NAME: "root",
