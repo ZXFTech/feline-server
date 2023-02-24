@@ -1,5 +1,6 @@
 import Koa, { Context } from "koa";
 import http from "http";
+import "reflect-metadata";
 
 import initCore from "./src/core/Init";
 
