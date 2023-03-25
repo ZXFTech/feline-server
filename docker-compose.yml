@@ -1,9 +1,10 @@
 services:
   feline:
     image: node:18-alpine
-    command: sh -c "npm install && npm run build"
+    # command: sh -c "npm install && npm run build"
+    command: sh -c "npm install && npm run dev"
     ports:
-      - 80:9000
+      - 8080:9000
     working_dir: /feline
     volumes:
       - ./:/feline
@@ -15,7 +16,7 @@ services:
   mysql:
     image: mysql:8.0
     volumes:
-      - feline-mysql-date:/var/lib/mysql
+      - feline-mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: hg178ar6
       MYSQL_DATABASE: feline
