@@ -30,7 +30,7 @@ export default class Config {
 }
 
 export const mysqlConfig = {
-  host: "localhost",
+  host: process.env.MYSQL_HOST || "127.0.0.1",
   port: 3306,
   user: "root",
   password: "hg178ar6",
