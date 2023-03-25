@@ -15,7 +15,7 @@ const app = new Koa();
 
 const server: http.Server = new http.Server(app.callback());
 
-app.use(staticResource(path.join(__dirname, "static")));
+// app.use(staticResource(path.join(__dirname, "static")));
 
 // 中间件 初始化
 initCore(app, server, () => {});
