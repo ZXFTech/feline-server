@@ -7,8 +7,6 @@ import {
 } from "../../../controller/blog.controller";
 import { FBlog } from "../../../types/blog.types";
 
-let blogRepository;
-
 const blog = {
   title: "吃饭",
   content:
