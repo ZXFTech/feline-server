@@ -14,19 +14,25 @@ import { crossOrigin } from "../middleware/netConfig";
 import { errorCatch } from "../middleware/errorCatch";
 
 import { getAllFilesExport } from "../common/utils/utils";
+import { MysqlDataSource } from "../server/mysql";
+import { BlogComment } from "../entity/comment";
+import { DataSource } from "typeorm";
 
-const router = new Router();
+const router = new Router({
+  prefix: "/api",
+});
 
 class Init {
   public static app: Koa<Koa.DefaultState, Koa.DefaultContext>;
   public static server: http.Server;
   public static initCore(
     app: Koa<Koa.DefaultState, Koa.DefaultContext>,
-    server: http.Server
+    server: http.Server,
+    callback: CallableFunction
   ) {
     Init.app = app;
     Init.server = server;
-    // Init.initErrorCatch();
+    Init.initErrorCatch();
     Init.loadBodyParser();
     // Init.initLoadRouters();
     Init.loadRouters();
@@ -53,9 +59,9 @@ class Init {
   // }
 
   // 暂时先不加
-  // static async initErrorCatch() {
-  //   Init.app.use(errorCatch);
-  // }
+  static async initErrorCatch() {
+    Init.app.use(errorCatch);
+  }
 }
 
 export default Init.initCore;

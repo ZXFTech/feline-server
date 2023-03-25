@@ -1,3 +1,6 @@
+import Blog from "../entity/BlogEntity";
+import { BlogComment } from "../entity/comment";
+
 const isDev = process.env.NODE_ENV === "develop";
 
 export default class Config {
@@ -25,3 +28,11 @@ export default class Config {
     TIMEOUT: 1000 * 60 * 60 * 1000,
   };
 }
+
+export const mysqlConfig = {
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "hg178ar6",
+  database: "feline",
+};

@@ -1,17 +1,17 @@
 import koa from "koa";
 import { Success, HttpException, FError } from "../core/HttpException";
 
-import { infoLog, errorLog } from "../server/logs";
+// import { infoLog, errorLog } from "../server/logs";
 
 export async function errorCatch(ctx: koa.Context, next: Function) {
   try {
-    infoLog(ctx);
+    // infoLog(ctx);
     await next();
   } catch (error: any) {
     const isHttpException = error instanceof HttpException;
 
     if (!isHttpException) {
-      errorLog(ctx, error);
+      // errorLog(ctx, error);
       ctx.body = {
         message: "未知错误",
         code: -1,
@@ -27,12 +27,12 @@ export async function errorCatch(ctx: koa.Context, next: Function) {
       } else {
         ctx.body = {
           message: error.message,
-          data: error.data,
+          data: error.data || undefined,
           code: error.code,
         } as FError;
       }
       ctx.status = error.code;
-      infoLog(ctx);
+      // infoLog(ctx);
     }
   }
 }

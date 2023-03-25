@@ -12,7 +12,7 @@ export class HttpException extends Error {
   public data: any;
   public isBuffer = false;
   public responseType: string | undefined;
-  constructor(data = {}, message = "服务器异常，请联系管理员。", code = 400) {
+  constructor(data = null, message = "服务器异常，请联系管理员。", code = 400) {
     super();
     this.message = message;
     this.code = code;
