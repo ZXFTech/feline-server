@@ -1,5 +1,4 @@
-import Blog from "../entity/BlogEntity";
-import { BlogComment } from "../entity/comment";
+import { config } from "process";
 
 const isDev = process.env.NODE_ENV === "develop";
 
@@ -35,4 +34,9 @@ export const mysqlConfig = {
   user: "root",
   password: "hg178ar6",
   database: "feline",
+};
+
+export const tokenConfig = {
+  secret: "feline",
+  expiresIn: "168h",
 };
