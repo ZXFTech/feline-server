@@ -1,63 +1,109 @@
-import { stat } from "fs";
-import { dataBaseFailed, QueryFailed } from "../core/HttpException";
-import connection from "../server/mysql/pool";
-import { handleError, handleSuccess } from "../server/mysql/utils";
-import { FBlog } from "../types/blog.types";
+import Joi from "joi";
 
-const DEFAULT_PAGE_NUM = 0;
-const DEFAULT_PAGE_SIZE = 20;
+import { QueryFailed, Success } from "../core/HttpException";
+import { FBlog } from "../types/blog.types";
+import { Blog, Tag, User } from "../model";
+
+export const getBlogList = async (pageNum: number, pageSize: number) => {
+  try {
+    const result = await Blog.findAll();
+    return new Success(result);
+  } catch (err: any) {
+    console.log("err", err);
+    throw new QueryFailed(err.original.sqlMessage);
+  }
+};
 
 export const getBlog = async (id: number) => {
-  const statement = `SELECT * FROM blog WHERE id=${id}`;
   try {
-    const result = await connection.promise().execute(statement);
-    let blog = result[0][0];
-    if (blog) {
-      return handleSuccess("查询成功!", blog);
-    }
-    throw new QueryFailed("文章未找到!");
-  } catch (error) {
-    throw new dataBaseFailed("查询失败! " + error);
+    const result = await Blog.findOne({
+      where: {
+        id,
+      },
+      include: {
+        model: Tag,
+        as: "tags",
+      },
+    });
+    return new Success(result);
+  } catch (err: any) {
+    throw new QueryFailed(err.original.sqlMessage);
+  }
+};
+
+export const getTags = async () => {
+  try {
+    const result = await Tag.findAll();
+    return new Success(result);
+  } catch (err: any) {
+    throw new QueryFailed(err.original.sqlMessage);
   }
 };
 
 export const addBlog = async (blog: FBlog) => {
-  const statement = `INSERT INTO blog ( title, author, content , likes ${
-    blog.gmtCreate ? ",gmt_create" : ""
-  }) VALUES ('${blog.title}','${blog.author}','${blog.content}','${
-    blog.likes
-  }'${blog.gmtCreate ? ",'" + blog.gmtCreate + "'" : ""})`;
   try {
-    const result = await connection.promise().execute(statement);
-    return handleSuccess("保存成功!", result[0].insertId);
-  } catch (error) {
-    throw new dataBaseFailed("保存失败! " + error);
+    (blog as any).user = blog.author;
+    const blogData = await Blog.create(
+      {
+        ...blog,
+      },
+      {
+        include: {
+          model: User,
+          as: "author",
+        },
+      }
+    );
+    const tags = await Tag.bulkCreate(blog.tags as Tag[], {
+      updateOnDuplicate: ["color"],
+    });
+    const result = await blogData.setTags(tags);
+
+    return new Success(result);
+  } catch (err: any) {
+    console.log("err", err);
+    throw new QueryFailed(err.original.sqlMessage);
   }
 };
 
-export const getBlogList = async (
-  pageNum: number,
-  pageSize: number,
-  sortBy: string = "",
-  order: 0 | 1 = 1
-) => {
-  const statement = `SELECT *,(SELECT count(*) FROM blog WHERE 1=1) blogCount FROM blog WHERE 1=1 ORDER BY ${
-    sortBy ? sortBy : "id"
-  } ${order ? "DESC" : "ASC"} LIMIT ${pageNum || DEFAULT_PAGE_NUM},${
-    pageSize || DEFAULT_PAGE_SIZE
-  }`;
-  try {
-    const result = await connection.promise().execute(statement);
-    let blogList = result[0];
-    const total = blogList[0] ? blogList[0].blogCount : 0;
-    const data = {
-      pageNum,
-      pageSize,
-      total,
-      list: blogList,
-    };
-    return handleSuccess("查询完毕.", data);
-  } catch (error) {
-    throw new dataBaseFailed("查询失败! " + error);
+export const updateBlog = async (blog: FBlog) => {
+  if (blog.id !== undefined) {
+    try {
+      const blogData = await Blog.findOne({
+        where: {
+          id: blog.id,
+        },
+        include: {
+          model: Tag,
+          as: "tags",
+        },
+      });
+      if (!blogData) {
+        throw new QueryFailed("id 对应博客不存在!");
+      }
+      const tags = await Tag.bulkCreate([...(blog.tags as Tag[])] || [], {
+        updateOnDuplicate: ["color"],
+      });
+      const result = await blogData.setTags(tags, {
+        updateOnDuplicate: ["BlogId", "name", "gmtUpdate", "gmtCreate"],
+      });
+
+      // const result = blogData.setTags([{
+      //   name:'tag'
+      // }])
+      // const result = await blogData.update(
+      //   { ...blog },
+      //   {
+      //     where: {
+      //       id: blog.id,
+      //     },
+      //   }
+      // );
+      return new Success(result);
+    } catch (err: any) {
+      console.log("err", err);
+      throw new QueryFailed(err.original.sqlMessage);
+    }
   }
+  throw new QueryFailed("id 对应博客不存在!");
 };

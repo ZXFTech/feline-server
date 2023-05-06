@@ -1,12 +1,15 @@
 export interface FTag {
-  content: string;
-  color: string;
+  name: string;
+  color?: string;
+  id?: number;
 }
 
 export interface FBlog {
+  id?: number;
   title: string;
   author: string;
   gmtCreate?: string;
   content: string;
-  likes: number;
+  likes?: number;
+  tags?: FTag[];
 }
