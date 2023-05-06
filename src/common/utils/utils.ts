@@ -7,7 +7,7 @@ export async function getAllFilesExport(filePath: string, callback: Function) {
   const files: string[] = fs.readdirSync(filePath);
   // 遍历文件列表
   files.map((fileName) => {
-    const absFilePath: string = path.join(filePath, fileName);
+    const absFilePath: string = path.join(filePath, fileName, "index.ts");
     const stats: fs.Stats = fs.statSync(absFilePath);
     if (stats.isFile()) {
       const file = require(absFilePath);
@@ -66,5 +66,5 @@ export function lineToHumpObject(obj: { [key: string]: any }) {
   }
   return {
     ...element,
-  }; 
+  };
 }
