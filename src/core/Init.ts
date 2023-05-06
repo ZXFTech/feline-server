@@ -8,15 +8,15 @@ import Router from "koa-router";
 
 import blogRouter from "../api/v1/blog";
 import scoreRouter from "../api/v1/scoreRace";
+import fileRouter from "../api/v1/file";
 
 import { crossOrigin } from "../middleware/netConfig";
 
 import { errorCatch } from "../middleware/errorCatch";
 
 import { getAllFilesExport } from "../common/utils/utils";
-import { MysqlDataSource } from "../server/mysql";
-import { BlogComment } from "../entity/comment";
 import { DataSource } from "typeorm";
+import serve from "koa-static";
 
 const router = new Router({
   prefix: "/api",
@@ -33,21 +33,31 @@ class Init {
     Init.app = app;
     Init.server = server;
     Init.initErrorCatch();
+    Init.initNetConfig();
     Init.loadBodyParser();
-    // Init.initLoadRouters();
-    Init.loadRouters();
+    Init.initLoadRouters();
   }
 
   public static loadBodyParser() {
-    Init.app.use(koaBodyParser());
+    this.app.use(koaBodyParser());
   }
 
   public static loadRouters() {
-    Init.app.use(crossOrigin);
     router.use(blogRouter.routes());
     router.use(scoreRouter.routes());
-    Init.app.use(router.routes());
-    Init.app.use(router.allowedMethods());
+    router.use(fileRouter.routes());
+    this.app.use(router.routes());
+    this.app.use(router.allowedMethods());
+  }
+
+  // 自动添加路由方法
+  static async initLoadRouters() {
+    const dirPath = path.join(`${process.cwd()}/src/api/v1`);
+    getAllFilesExport(dirPath, (file: Router) => {
+      router.use(file.routes());
+    });
+    this.app.use(router.routes());
+    this.app.use(router.allowedMethods());
   }
 
   // 自动添加路由方法 -- 先不用
@@ -58,9 +68,18 @@ class Init {
   //   });
   // }
 
-  // 暂时先不加
-  static async initErrorCatch() {
-    Init.app.use(errorCatch);
+  // 文件管理部分
+  public static initFileManage() {
+    this.app.use(serve(path.join(__dirname, "./api/file/img")));
+    this.app.use(serve(path.join(__dirname, "./api/file/others")));
+  }
+
+  public static initErrorCatch() {
+    this.app.use(errorCatch);
+  }
+
+  public static initNetConfig() {
+    this.app.use(crossOrigin);
   }
 }
 
