@@ -7,7 +7,6 @@ export const createUserToken = (user: FUser | User) => {
   const token = jwt.sign(
     {
       userName: user.username,
-      password: user.password,
       email: user.password,
       id: user.id,
     },
@@ -18,9 +17,3 @@ export const createUserToken = (user: FUser | User) => {
   );
   return token;
 };
-
-// export const checkToken = (ctx) => {
-
-//   const authorization
-//   return jwt.verify()
-// }
