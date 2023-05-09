@@ -7,12 +7,12 @@ const router = new Router({
 });
 
 router.post("/register", async (ctx) => {
-  const user = ctx.request.body as FUser;
+  const user: FUser = ctx.request.body as any;
   const result = await register(user);
   ctx.body = result;
 });
 
-router.get("/login", async (ctx) => {
+router.post("/login", async (ctx) => {
   const { username, password } = ctx.request.body as any;
   const result = await login(username, password);
   ctx.body = result;

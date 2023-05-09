@@ -12,4 +12,5 @@ export interface FBlog {
   content: string;
   likes?: number;
   tags?: FTag[];
+  userId?: number;
 }

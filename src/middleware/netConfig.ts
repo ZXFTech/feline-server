@@ -1,4 +1,8 @@
 import { Context, Next } from "koa";
+import { AuthFailed } from "../core/HttpException";
+import jwt, { verify } from "jsonwebtoken";
+import { tokenConfig } from "../config/config";
+import { userInfo } from "os";
 
 export const crossOrigin = async (ctx: Context, next: Next) => {
   // ctx.set("Access-Control-Allow-Origin", "http://localhost:5173");
@@ -15,4 +19,21 @@ export const crossOrigin = async (ctx: Context, next: Next) => {
   // ctx.append("Access-Control-Allow-Headers", "POST,GET,OPTIONS,DELETE'");
 
   await next();
+};
+
+export const checkToken = async (ctx: Context, next: Next) => {
+  if (ctx.url !== "/api/user/register" && ctx.url !== "/api/user/login") {
+    const token = ctx.request.header["token"] as string;
+    if (!token) {
+      throw new AuthFailed("用户未登录!");
+    }
+    verify(token, tokenConfig.secret, async (err, decode) => {
+      if (err) {
+        throw new AuthFailed(err.message);
+      }
+    });
+    await next();
+  } else {
+    await next();
+  }
 };

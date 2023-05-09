@@ -9,7 +9,8 @@ import {
   getTags,
   updateBlog,
 } from "../../../controller/blog.controller";
-import { ParamsException } from "../../../core/HttpException";
+import { verify } from "jsonwebtoken";
+import { tokenConfig } from "../../../config/config";
 
 const router = new Router({
   prefix: "/blog",
@@ -28,28 +29,24 @@ router.get("/detail", async (ctx) => {
 });
 
 router.post("/update", async (ctx) => {
-  const blog: any = (ctx.request.body as any).data;
+  const blog: any = ctx.request.body as any;
   const result = await updateBlog(blog);
   ctx.body = result;
 });
 
 router.post("/add", async (ctx) => {
-  const blog: any = (ctx.request.body as any).data;
-  console.log("blog", blog);
-  const validator = Joi.object({
-    title: Joi.string().min(1).max(100).required(),
-    content: Joi.string().required(),
-    tags: Joi.array(),
-    author: Joi.string(),
-    likes: Joi.number(),
-  }).validate(blog);
-  if (validator.error) {
-    console.log("validator.error.message", validator.error.message);
-    throw new ParamsException(validator.error.message);
-  } else {
-    const result = await addBlog(blog as FBlog);
-    ctx.body = result;
-  }
+  const blog: FBlog = ctx.request.body as any;
+  const token = ctx.request.header["token"] as string;
+  let userInfo;
+  verify(token, tokenConfig.secret, (err, decode) => {
+    const { username, id } = decode as any;
+    blog.author = username;
+    blog.userId = id;
+    userInfo = decode;
+  });
+  const result = await addBlog(blog as FBlog, (userInfo as any).id);
+  ctx.body = result;
+  // }
 });
 
 router.get("/tags", async (ctx) => {

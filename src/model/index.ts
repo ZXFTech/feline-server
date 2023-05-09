@@ -13,25 +13,26 @@ export function initModels(sequelize: Sequelize) {
   Blog.belongsToMany(Tag, {
     as: "tags",
     through: "BlogTag",
-    foreignKey: "blogId",
-    otherKey: "tagsId",
+    foreignKey: "name",
     onDelete: "CASCADE",
-  });
-  Blog.belongsTo(User, {
-    as: "author",
-    foreignKey: "userId",
   });
   Tag.belongsToMany(Blog, {
     as: "blogs",
     through: "BlogTag",
-    foreignKey: "tagId",
-    otherKey: "blogsId",
+    foreignKey: "blogId",
+    sourceKey: "name",
     onDelete: "CASCADE",
   });
   User.hasMany(Blog, {
     as: "blogs",
+    foreignKey: "blogId",
+  });
+  Blog.belongsTo(User, {
+    as: "user",
     foreignKey: "userId",
   });
+
+  sequelize.sync({ force: true });
 
   return {
     Blog,

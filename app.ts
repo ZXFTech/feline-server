@@ -9,12 +9,16 @@ import initCore from "./src/core/Init";
 import Config from "./src/config/config";
 import { mysqlSequelize } from "./src/server/mysql";
 import { initModels } from "./src/model";
+import { generateKeyFiles } from "./src/common/utils/encode";
 
 const app = new Koa();
 
 const server: http.Server = new http.Server(app.callback());
 
 // app.use(staticResource(path.join(__dirname, "static")));
+
+// 生成私有key
+generateKeyFiles();
 
 // 中间件 初始化
 initCore(app, server, () => {});

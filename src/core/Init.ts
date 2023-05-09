@@ -10,7 +10,7 @@ import blogRouter from "../api/v1/blog";
 import scoreRouter from "../api/v1/scoreRace";
 import fileRouter from "../api/v1/file";
 
-import { crossOrigin } from "../middleware/netConfig";
+import { checkToken, crossOrigin } from "../middleware/netConfig";
 
 import { errorCatch } from "../middleware/errorCatch";
 
@@ -60,14 +60,6 @@ class Init {
     this.app.use(router.allowedMethods());
   }
 
-  // 自动添加路由方法 -- 先不用
-  // static async initLoadRouters() {
-  //   const dirPath = path.join(`${process.cwd()}/src/api`);
-  //   getAllFilesExport(dirPath, (file: Router) => {
-  //     Init.app.use(file.routes());
-  //   });
-  // }
-
   // 文件管理部分
   public static initFileManage() {
     this.app.use(serve(path.join(__dirname, "./api/file/img")));
@@ -80,6 +72,7 @@ class Init {
 
   public static initNetConfig() {
     this.app.use(crossOrigin);
+    this.app.use(checkToken);
   }
 }
 

@@ -1,17 +1,12 @@
-import Joi from "joi";
+import Joi, { build } from "joi";
 
 import { QueryFailed, Success } from "../core/HttpException";
 import { FBlog } from "../types/blog.types";
 import { Blog, Tag, User } from "../model";
 
 export const getBlogList = async (pageNum: number, pageSize: number) => {
-  try {
-    const result = await Blog.findAll();
-    return new Success(result);
-  } catch (err: any) {
-    console.log("err", err);
-    throw new QueryFailed(err.original.sqlMessage);
-  }
+  const result = await Blog.findAll();
+  return new Success(result);
 };
 
 export const getBlog = async (id: number) => {
@@ -40,30 +35,37 @@ export const getTags = async () => {
   }
 };
 
-export const addBlog = async (blog: FBlog) => {
-  try {
-    (blog as any).user = blog.author;
-    const blogData = await Blog.create(
-      {
-        ...blog,
-      },
-      {
-        include: {
-          model: User,
-          as: "author",
-        },
-      }
-    );
-    const tags = await Tag.bulkCreate(blog.tags as Tag[], {
-      updateOnDuplicate: ["color"],
-    });
-    const result = await blogData.setTags(tags);
-
-    return new Success(result);
-  } catch (err: any) {
-    console.log("err", err);
-    throw new QueryFailed(err.original.sqlMessage);
+export const addBlog = async (blog: FBlog, userId: number) => {
+  const user = await User.findOne({
+    where: {
+      id: userId,
+    },
+  });
+  if (!user) {
+    throw new QueryFailed("用户未找到!");
   }
+
+  const blogData = await Blog.create(
+    {
+      ...blog,
+    },
+    {
+      include: {
+        model: User,
+        foreignKey: "userId",
+        as: "user",
+      },
+    }
+  );
+
+  const tags = await Tag.bulkCreate([...((blog.tags as Tag[]) || [])], {
+    updateOnDuplicate: ["color"],
+  });
+  await blogData.setTags(tags);
+
+  const result = await blogData.setUser(user);
+
+  return new Success(result);
 };
 
 export const updateBlog = async (blog: FBlog) => {
